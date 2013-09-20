@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.List;
 
 
 import android.os.AsyncTask;
@@ -40,30 +41,29 @@ public class MainActivity extends Activity {
     public void onClickCargarRss(View view){
     
     	textoRss.setText("");
-    	Log.d(getDate(), "Llamando a onClickCargarRss(View view)");
+    	Log.d("debug", "Llamando a onClickCargarRss(View view)");
     	AsyncTaskRunner runner = new AsyncTaskRunner();		
 		runner.execute();
     	
     }
-    
-	private String getDate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    	
 
 	private class AsyncTaskRunner extends AsyncTask<String, String, String> {
 
 		private String resp;
+		
 
 		@Override
 		protected String doInBackground(String... params) {
 			
 			String urlStr = new String("http://www.pcworld.com/index.rss");
 			InputStream is = null;
+			
+			List<PostVo> posts = null;
 	
 			publishProgress("Cargando..."); // Calls onProgressUpdate()
 			
-			Log.d(getDate(), "A punto de llamar al url");
+			Log.d("debug", "A punto de llamar al url");
 			try {
 			
 				URL url = new URL(urlStr);
@@ -75,15 +75,23 @@ public class MainActivity extends Activity {
 				connection.connect();
 				int response = connection.getResponseCode();
 				Log.d("debug", "The response is: " + response);
-				is = connection.getInputStream();	
-				resp = getStringFromInputStream(is);
+				is = connection.getInputStream();
+				//resp = getStringFromInputStream(is);
+				resp = "hola";
+				XMLPullParserHandler parser = new XMLPullParserHandler();
+				posts = parser.parse(is);
+				
+				
 											
 			} 			
 			catch(SocketException ex)
 		    {
 		         Log.e("Error : " , "Error on soapPrimitiveData() " + ex.getMessage());
 		           ex.printStackTrace();
-		    } 						
+		    } 		
+			catch (IOException e) {
+	            e.printStackTrace();
+	        }
 			catch (Exception e) {
 				e.printStackTrace();
 				resp = e.getMessage();
