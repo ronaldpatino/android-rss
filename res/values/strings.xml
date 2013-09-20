@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Async Load</string>
+    <string name="action_settings">Settings</string>
+    <string name="cargar_rss">Cargar Rss</string>
+    <string name="texto_rss">Texto Cargado</string>
+
+</resources>
