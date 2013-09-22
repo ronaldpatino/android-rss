@@ -56,10 +56,10 @@ public class MainActivity extends Activity {
 		@Override
 		protected String doInBackground(String... params) {
 			
-			String urlStr = new String("http://www.pcworld.com/index.rss");
+			String urlStr = new String("http://www.elmercurio.com.ec/feed?cat=53");
 			InputStream is = null;
 			
-			List<PostVo> posts = null;
+			List<FeedMessage> posts = null;
 	
 			publishProgress("Cargando..."); // Calls onProgressUpdate()
 			

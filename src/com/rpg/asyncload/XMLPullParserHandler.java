@@ -2,7 +2,7 @@ package com.rpg.asyncload;
 
 import android.util.Log;
 
-import com.rpg.asyncload.PostVo;
+import com.rpg.asyncload.FeedMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,63 +15,108 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 public class XMLPullParserHandler {
 
-	List<PostVo> posts;
-	private PostVo post;
+	List<FeedMessage> posts;
+	private FeedMessage post;
 	private String text;
+	private String tagName;
+
+
+	static final String TITLE = "title";
+	static final String DESCRIPTION = "description";
+	static final String CHANNEL = "channel";
+	static final String LANGUAGE = "language";
+	static final String COPYRIGHT = "copyright";
+	static final String LINK = "link";
+	static final String AUTHOR = "author";
+	static final String ITEM = "item";
+	static final String PUB_DATE = "pubDate";
+	static final String GUID = "guid";
+	static final String CATEGORY = "category";
+
 
 	public XMLPullParserHandler() {
-		posts = new ArrayList<PostVo>();
+		posts = new ArrayList<FeedMessage>();
 	}
 
-	public List<PostVo> getPosts() {
+	public List<FeedMessage> getPosts() {
 		return posts;
 	}
 
-	public List<PostVo> parse(InputStream is) {
+	public List<FeedMessage> parse(InputStream is) {
 
 		XmlPullParserFactory factory = null;
 		XmlPullParser parser = null;
-
+		Feed feed = null;
 		try {
-
+			Log.d("debug", "==========================");
 			Log.d("debug", "Estoy en el parser");
+
+			boolean isFeedHeader = true;
+			// Set header values intial to the empty string
+			String description = "";
+			String title = "";
+			String link = "";
+			String language = "";
+			String copyright = "";
+			String author = "";
+			String pubdate = "";
+			String guid = "";
+
+			boolean done = false;
+
+
 			factory = XmlPullParserFactory.newInstance();
 			factory.setNamespaceAware(true);
-			parser = factory.newPullParser();
 
+			parser = factory.newPullParser();
 			parser.setInput(is, null);
 
 			int eventType = parser.getEventType();
 
-			while (eventType != XmlPullParser.END_DOCUMENT) {
-				
-				String tagname = parser.getName();				
-				
-				if (tagname != null)  {Log.d("debug", "El tag=> " + tagname.toString());}
-				
+			while (eventType != XmlPullParser.END_DOCUMENT && !done) {
+				tagName = parser.getName();
 				switch (eventType) {
-				
-						
-					case XmlPullParser.START_TAG:					
-				
-						if (tagname.equalsIgnoreCase("channel")) {
-							Log.d("debug", "channel me voy de aquí");
-							break;
-						}
-						
-						if (tagname.equalsIgnoreCase("item")) {
-							// create a new instance of employee
-							post = new PostVo();
-							Log.d("debug", "Creando un item de " + tagname.toString());
-						}
-					break;	
-					
-					default:
+					case XmlPullParser.START_DOCUMENT:
 						break;
-											
+					case XmlPullParser.START_TAG:
+						if (tagName.equals(ITEM)) {
+                            //rssFeed = new RSSFeed();
+							Log.d("debug", "Creamos nuevo item");
+
+						}
+						if (tagName.equals(TITLE)) {
+							title = parser.nextText().toString();
+							Log.d("debug", "Titulo " + title);
+						}
+						if (tagName.equals(LINK)) {
+							link = parser.nextText().toString();
+						}
+						if (tagName.equals(DESCRIPTION)) {
+							description = parser.nextText().toString();
+						}
+						if (tagName.equals(CATEGORY)) {
+	
+						}
+						if (tagName.equals(PUB_DATE)) {
+							pubdate = parser.nextText().toString();
+						}
+						if (tagName.equals(GUID)) {
+							guid = parser.nextText().toString();
+						}
+	
+						break;	
+	
+					case XmlPullParser.END_TAG:
+						if (tagName.equals(CHANNEL)) {
+							done = true;
+						} else if (tagName.equals(ITEM)) {
+							//rssFeed = new RSSFeed(title, link, description, category, pubDate,                               guid,  feedburner);
+							//rssFeedList.add(rssFeed);
+						}
+					break;                        
 				}
-				
-				eventType = parser.next();
+
+				eventType = parser.next();			
 			}
 
 			Log.d("debug", "==========================");
