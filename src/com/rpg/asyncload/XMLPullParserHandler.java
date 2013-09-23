@@ -2,7 +2,6 @@ package com.rpg.asyncload;
 
 import android.util.Log;
 
-import com.rpg.asyncload.FeedMessage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,8 +14,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 public class XMLPullParserHandler {
 
-	List<FeedMessage> posts;
-	private FeedMessage post;
+	List<FeedMessage> feedList;
+	private FeedMessage feed;
 	private String text;
 	private String tagName;
 
@@ -35,18 +34,18 @@ public class XMLPullParserHandler {
 
 
 	public XMLPullParserHandler() {
-		posts = new ArrayList<FeedMessage>();
+		feedList = new ArrayList<FeedMessage>();
 	}
 
-	public List<FeedMessage> getPosts() {
-		return posts;
+	public List<FeedMessage> getfeedList() {
+		return feedList;
 	}
 
 	public List<FeedMessage> parse(InputStream is) {
 
 		XmlPullParserFactory factory = null;
 		XmlPullParser parser = null;
-		Feed feed = null;
+		
 		try {
 			Log.d("debug", "==========================");
 			Log.d("debug", "Estoy en el parser");
@@ -71,7 +70,12 @@ public class XMLPullParserHandler {
 			parser = factory.newPullParser();
 			parser.setInput(is, null);
 
-			int eventType = parser.getEventType();
+			 //rssFeed = new RSSFeed();
+	          //rssFeedList = new ArrayList<RSSFeed>();
+			feed = new FeedMessage();
+			feedList = new ArrayList<FeedMessage>();
+			
+			int eventType = parser.getEventType();									
 
 			while (eventType != XmlPullParser.END_DOCUMENT && !done) {
 				tagName = parser.getName();
@@ -80,7 +84,7 @@ public class XMLPullParserHandler {
 						break;
 					case XmlPullParser.START_TAG:
 						if (tagName.equals(ITEM)) {
-                            //rssFeed = new RSSFeed();
+							feed = new FeedMessage();
 							Log.d("debug", "Creamos nuevo item");
 
 						}
@@ -112,6 +116,9 @@ public class XMLPullParserHandler {
 						} else if (tagName.equals(ITEM)) {
 							//rssFeed = new RSSFeed(title, link, description, category, pubDate,                               guid,  feedburner);
 							//rssFeedList.add(rssFeed);
+							feed.setTitle(title);
+							feed.setDescription(description);
+							feedList.add(feed);
 						}
 					break;                        
 				}
@@ -128,7 +135,7 @@ public class XMLPullParserHandler {
 			e.printStackTrace();
 		}
 
-		return posts;
+		return feedList;
 	}
 
 }

@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -22,8 +24,9 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	private TextView textoRss;
-	private FeedMessage[] feedList;
+	private List<FeedMessage> feedList = null;
 	List<FeedMessage> posts = null;
+	ListView listView = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +34,10 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         this.generateDummyData();
         textoRss = (TextView) findViewById(R.id.texto_rss);
-        ListView listView = (ListView)this.findViewById(R.id.feedsListView);
+        listView = (ListView)this.findViewById(R.id.feedsListView);
         FeedItemAdapter itemAdapter = new FeedItemAdapter(this,	R.layout.feeditem, feedList);
 		listView.setAdapter(itemAdapter);
-		listView.setVisibility(View.INVISIBLE);
+		//listView.setVisibility(View.INVISIBLE);
     }
 
 
@@ -53,31 +56,29 @@ public class MainActivity extends Activity {
     	AsyncTaskRunner runner = new AsyncTaskRunner();		
 		runner.execute();
 		ListView listView = (ListView)this.findViewById(R.id.feedsListView);
-		listView.setVisibility(View.VISIBLE);
+		//listView.setVisibility(View.VISIBLE);
     	
     }
     
     private void generateDummyData() {
 		FeedMessage data = null;
-		feedList = new FeedMessage[50];
-		for (int i = 0; i < 50; i++) {
-			data = new FeedMessage();			
-			
+		feedList = new ArrayList<FeedMessage>();
+		for (int i = 0; i < 5; i++) {
+			data = new FeedMessage();						
 			data.setDescription("Post " + (i + 1) + " Title: This is the Post Title from RSS Feed");
-			data.setTitle("El titulo");
-						
-			feedList[i] = data;
-		}
+			data.setTitle("El titulo");						
+			feedList.add(data);
+		}				
 	}
     	
 
-	private class AsyncTaskRunner extends AsyncTask<String, String, String> {
+	private class AsyncTaskRunner extends AsyncTask<String, String, List<FeedMessage>> {
 
 		private String resp;
 		
 
 		@Override
-		protected String doInBackground(String... params) {
+		protected List<FeedMessage> doInBackground(String... params) {
 			
 			String urlStr = new String("http://www.elmercurio.com.ec/feed?cat=53");
 			InputStream is = null;
@@ -99,7 +100,6 @@ public class MainActivity extends Activity {
 				int response = connection.getResponseCode();
 				Log.d("debug", "The response is: " + response);
 				is = connection.getInputStream();
-				//resp = getStringFromInputStream(is);
 				resp = "hola";
 				XMLPullParserHandler parser = new XMLPullParserHandler();
 				posts = parser.parse(is);
@@ -119,14 +119,40 @@ public class MainActivity extends Activity {
 				resp = e.getMessage();
 			}			
 			
-			return resp;
+			return posts;
 		}
 
 		
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(List<FeedMessage> result) {
 			// execution of result of Long time consuming operation
-			textoRss.setText(result);			
+			textoRss.setText("Hellou");		
+			
+			FeedMessage data = null;
+									
+			Iterator itr = result.iterator();
+			int i = 1;
+			feedList.clear();
+			/*
+			while(itr.hasNext()) {
+				Object element = itr.next();
+				data = new FeedMessage();						
+				data.setDescription("Post " + (i++) + " Title: This is the Post Title from RSS Feed");
+				data.setTitle("El titulo");						
+				feedList.add(data);
+				
+			}	*/
+			for (FeedMessage fm: result)
+			{
+				data = new FeedMessage();
+				data.setDescription(fm.getDescription());
+				data.setLink(fm.getTitle());
+				feedList.add(data);
+				Log.d("debug", "iterando" + i++);
+			}
+			
+			listView.invalidateViews();
+			
 		}
 
 		

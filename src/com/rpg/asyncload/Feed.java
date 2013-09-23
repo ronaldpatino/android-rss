@@ -17,6 +17,7 @@ public class Feed {
 
   final List<FeedMessage> entries = new ArrayList<FeedMessage>();
 
+  
   public Feed(String title, String link, String description, String language,
       String copyright, String pubDate) {
     this.title = title;
