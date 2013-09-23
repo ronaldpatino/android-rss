@@ -16,17 +16,25 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
 	private TextView textoRss;
+	private FeedMessage[] feedList;
+	List<FeedMessage> posts = null;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.generateDummyData();
         textoRss = (TextView) findViewById(R.id.texto_rss);
+        ListView listView = (ListView)this.findViewById(R.id.feedsListView);
+        FeedItemAdapter itemAdapter = new FeedItemAdapter(this,	R.layout.feeditem, feedList);
+		listView.setAdapter(itemAdapter);
+		listView.setVisibility(View.INVISIBLE);
     }
 
 
@@ -44,8 +52,23 @@ public class MainActivity extends Activity {
     	Log.d("debug", "Llamando a onClickCargarRss(View view)");
     	AsyncTaskRunner runner = new AsyncTaskRunner();		
 		runner.execute();
+		ListView listView = (ListView)this.findViewById(R.id.feedsListView);
+		listView.setVisibility(View.VISIBLE);
     	
     }
+    
+    private void generateDummyData() {
+		FeedMessage data = null;
+		feedList = new FeedMessage[50];
+		for (int i = 0; i < 50; i++) {
+			data = new FeedMessage();			
+			
+			data.setDescription("Post " + (i + 1) + " Title: This is the Post Title from RSS Feed");
+			data.setTitle("El titulo");
+						
+			feedList[i] = data;
+		}
+	}
     	
 
 	private class AsyncTaskRunner extends AsyncTask<String, String, String> {
@@ -59,7 +82,7 @@ public class MainActivity extends Activity {
 			String urlStr = new String("http://www.elmercurio.com.ec/feed?cat=53");
 			InputStream is = null;
 			
-			List<FeedMessage> posts = null;
+			
 	
 			publishProgress("Cargando..."); // Calls onProgressUpdate()
 			
@@ -80,8 +103,7 @@ public class MainActivity extends Activity {
 				resp = "hola";
 				XMLPullParserHandler parser = new XMLPullParserHandler();
 				posts = parser.parse(is);
-				
-				
+								
 											
 			} 			
 			catch(SocketException ex)
@@ -104,7 +126,7 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 			// execution of result of Long time consuming operation
-			textoRss.setText(result);
+			textoRss.setText(result);			
 		}
 
 		
@@ -156,4 +178,5 @@ public class MainActivity extends Activity {
 		}
 		
 	}
+	
 }
